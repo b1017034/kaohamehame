@@ -27,7 +27,7 @@ requests==2.25.1
 scipy==1.5.4
 six==1.15.0
 sqlparse==0.4.1
-tifffile==2020.12.8
+tifffile==2020.9.3
 typing-extensions==3.7.4.3
 urllib3==1.26.2
 utils==1.0.1
