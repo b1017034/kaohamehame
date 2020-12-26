@@ -30,6 +30,9 @@ def rmbg_local():
 
     return controller.request_img_from_local('./images/panel1.jpg')
 
+@app.route('/')
+def hello():
+    return 'hello'
 
 def run():
     app.run(debug=True)
