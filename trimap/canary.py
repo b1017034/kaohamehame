@@ -50,35 +50,22 @@ def crt():
     plt.show()
 
 
-def various_contours(path):
-    color = cv2.imread(path)
-    grayed = cv2.cvtColor(color, cv2.COLOR_BGR2GRAY)
-    _, binary = cv2.threshold(grayed, 218, 255, cv2.THRESH_BINARY)
-    inv = cv2.bitwise_not(binary)
-    _, contours, _ = cv2.findContours(inv, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-    for c in contours:
-        if cv2.contourArea(c) < 90:
-            continue
-
-        epsilon = 0.01 * cv2.arcLength(c, True)
-        approx = cv2.approxPolyDP(c, epsilon, True)
-        cv2.drawContours(color, c, -1, (0, 0, 255), 3)
-        cv2.drawContours(color, [approx], -1, (0, 255, 0), 3)
-
-    plt.imshow(cv2.cvtColor(color, cv2.COLOR_BGR2RGB))
-
+def isNanorInf(num: float) -> bool:
+    return np.isnan(num) \
+           and np.isnan(num) \
+           and np.isinf(num) \
+           and np.isinf(num)
 
 def hough():
-    img = cv2.imread('../images/test2.jpg', cv2.IMREAD_COLOR)
+    img = cv2.imread('../images/test4.jpg')
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-    # グレイスケール化
-    gray1 = cv2.bitwise_and(img[:, :, 0], img[:, :, 1])
-    gray1 = cv2.bitwise_and(gray1, img[:, :, 2])
+    blur = cv2.GaussianBlur(img, (15, 15), 0)
 
     # 二値化
-    _, binimg = cv2.threshold(gray1, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+    _, binimg = cv2.threshold(gray, 170, 255, cv2.THRESH_OTSU)
     binimg = cv2.bitwise_not(binimg)
+
 
     # 結果画像の黒の部分を灰色にする。
     bimg = binimg // 4 + 255 * 3 // 4
@@ -86,21 +73,47 @@ def hough():
 
     # 輪郭取得
     contours, hierarchy = cv2.findContours(binimg, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    mask = np.zeros(binimg.shape)
     for i, cnt in enumerate(contours):
         # 楕円フィッティング
-        ellipse = cv2.fitEllipse(cnt)
-        print(ellipse)
+        if len(cnt) >= 5:
+            ellipse = cv2.fitEllipse(cnt)
 
-        cx = int(ellipse[0][0])
-        cy = int(ellipse[0][1])
+            if 0.9 <= ellipse[1][0] / ellipse[1][1] <= 1.2 and 40 <= ellipse[1][1] <= 400:
+                print(ellipse)
+                resimg = cv2.ellipse(resimg, ellipse, (255, 0, 0), 2)
+                if not isNanorInf(ellipse[0][0]) and not isNanorInf(ellipse[0][1]):
+                    cx = int(ellipse[0][0])
+                    cy = int(ellipse[0][1])
 
-        # 楕円描画
-        resimg = cv2.ellipse(resimg, ellipse, (255, 0, 0), 2)
-        cv2.drawMarker(resimg, (cx, cy), (0, 0, 255), markerType=cv2.MARKER_CROSS, markerSize=10, thickness=1)
-        cv2.putText(resimg, str(i + 1), (cx + 3, cy + 3), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 80, 255), 1, cv2.LINE_AA)
+                    # 楕円描画
+                    mask = cv2.ellipse(mask, ellipse, (255, 255, 255), -1)
 
-    cv2.imshow('resimg', resimg)
-    cv2.waitKey()
+
+                    # img = img & mask
+
+                    # cv2.drawMarker(resimg, (cx, cy), (0, 0, 255), markerType=cv2.MARKER_CROSS, markerSize=10, thickness=1)
+                    # cv2.putText(resimg, str(i + 1), (cx + 3, cy + 3), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 80, 255), 1, cv2.LINE_AA)
+
+    mask_stack = np.dstack([mask]*3)
+
+    mask_stack = mask_stack.astype('float32') / 255.0
+    img = img.astype('float32') / 255.0
+
+    masked = (mask_stack * img) + ((1 - mask_stack) * (0.0, 0.0, 1.0))
+    masked = (masked + 255).astype('uint8')
+
+    c_blue, c_green, c_red = cv2.split(img)
+
+    img_a = cv2.merge((c_red, c_green, c_blue, mask.astype('float32') / 255.0))
+
+    plt.imshow('mask', mask, cmap='gray')
+    plt.show()
+
+    plt.imshow(img_a)
+    plt.show()
+
+    cv2.imwrite("test4.png", mask)
 
 
 if __name__ == '__main__':

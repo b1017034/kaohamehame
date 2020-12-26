@@ -2,6 +2,15 @@ import requests
 import os
 import ast
 import base64
+import sys
+
+import numpy
+import json
+
+
+sys.path.append(os.path.dirname(__file__))
+
+from trimap import main
 
 
 def request_img_from_api(path: str) -> dict:
@@ -28,6 +37,10 @@ def request_img_from_api(path: str) -> dict:
 
 
 def request_img_from_local(path: str) -> dict:
-    with open(os.getcwd() + path, "rb") as f:
-        img_base64 = base64.b64encode(f.read()).decode('utf-8')
-    return {'img': img_base64}
+    img_dic = main.remove_bg(path)
+    # img_bin =
+
+    # img_base64 = base64.b64encode(f.read()).decode('utf-8')
+    return img_dic
+
+
