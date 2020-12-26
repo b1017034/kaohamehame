@@ -3,6 +3,8 @@ import json
 import numpy
 import sys
 import os
+import cv2
+import base64
 
 sys.path.append(os.path.dirname(__file__))
 import controller
@@ -36,6 +38,18 @@ def rmbg_local():
         return {'status': 'needs binary or img_url request param '}
     return controller.request_img_from_local(binary, img_url)
 
+
+@app.route('/v2/api/test', methods=['GET'])
+def test_local():
+    img = cv2.imread('./images/test4.jpg')
+    result, dst_data = cv2.imencode('.png', img)
+    binary = base64.b64encode(dst_data)
+
+    img_url = ''
+
+    if binary == '' and img_url == '':
+        return {'status': 'needs binary or img_url request param '}
+    return controller.request_img_from_local(binary, img_url)
 
 @app.route('/')
 def hello():
