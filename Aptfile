@@ -4,3 +4,4 @@ libfontconfig1
 libice6
 linfontconfig1
 libxrender1
+libgl1
