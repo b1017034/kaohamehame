@@ -1,12 +1,8 @@
 import requests
 import os
 import ast
-import base64
+
 import sys
-
-import numpy
-import json
-
 
 sys.path.append(os.path.dirname(__file__))
 
@@ -36,11 +32,9 @@ def request_img_from_api(path: str) -> dict:
         return ast.literal_eval(response.text)
 
 
-def request_img_from_local(path: str) -> dict:
-    img_dic = main.remove_bg(path)
-    # img_bin =
-
-    # img_base64 = base64.b64encode(f.read()).decode('utf-8')
+def request_img_from_local(binary='', img_url='') -> dict:
+    img_dic = main.remove_bg(binary, img_url)
+    print(img_dic['img'])
     return img_dic
 
 

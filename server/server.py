@@ -1,8 +1,9 @@
-from flask import Flask
+from flask import Flask, request
 import json
 import numpy
 import sys
 import os
+
 sys.path.append(os.path.dirname(__file__))
 import controller
 
@@ -20,20 +21,26 @@ class NumpyEncoder(json.JSONEncoder):
         else:
             return super(NumpyEncoder, self).default(obj)
 
+
 @app.route('/v1/api/rmbg')
 def rmbg_api():
     return controller.request_img_from_api('/images/test.jpg')
 
 
-@app.route('/v2/api/rmbg')
+@app.route('/v2/api/rmbg', methods=['POST'])
 def rmbg_local():
+    binary = request.json['buf']
+    img_url = ''
 
-    return controller.request_img_from_local('./images/panel1.jpg')
+    if binary == '' and img_url == '':
+        return {'status': 'needs binary or img_url request param '}
+    return controller.request_img_from_local(binary, img_url)
+
 
 @app.route('/')
 def hello():
     return 'hello'
 
+
 def run():
     app.run(debug=True)
-
