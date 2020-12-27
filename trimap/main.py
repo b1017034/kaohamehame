@@ -207,47 +207,39 @@ def remove_bg_machine(binary: str = None, img_url='') -> dict:
     contours, _ = cv2.findContours(edges, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
     ellipses = []
 
-    tdatetime = dt.now()
-    with open('../csv/svm.csv', 'a') as csvfile:
-        writer = csv.writer(csvfile, lineterminator='\n')
-        for i, cnt in enumerate(contours):
-            # 楕円フィッティング
-            if len(cnt) >= 5:
-                ellipse = cv2.fitEllipse(cnt)
-                # print(i + 1, ellipse)
+    for i, cnt in enumerate(contours):
+        # 楕円フィッティング
+        if len(cnt) >= 5:
+            ellipse = cv2.fitEllipse(cnt)
+            # print(i + 1, ellipse)
 
-                if not is_nan_or_inf(ellipse):
-                    print(i + 1, ellipse)
-                    with open('model.pickle.god', mode='rb') as fp:
-                        clf = pickle.load(fp)
-                    pf = np.array([ellipse[0][0], ellipse[0][1], ellipse[1][0], ellipse[1][1], ellipse[2]]).reshape(1, -1)
-                    test = clf.predict(pf)
-                    if test >= 0.5:
-                        print(test)
+            if not is_nan_or_inf(ellipse):
+                print(i + 1, ellipse)
+                with open('model.pickle.god', mode='rb') as fp:
+                    clf = pickle.load(fp)
+                pf = np.array([ellipse[0][0], ellipse[0][1], ellipse[1][0], ellipse[1][1], ellipse[2]]).reshape(1, -1)
+                test = clf.predict(pf)
+                if test >= 0.5:
+                    print(test)
 
-                    #if 0.65 <= ellipse[1][0] / ellipse[1][1] <= 1.7 and 40 <= ellipse[1][1] <= 400:
-                        # writer.writerow([ellipse[0][0], ellipse[0][1], ellipse[1][0], ellipse[1][1], ellipse[2], 0.0])
-                        cx = int(ellipse[0][0])
-                        cy = int(ellipse[0][1])
-                        resimg = cv2.ellipse(resimg, ellipse, (255, 0, 0), 2)
-                        cv2.drawMarker(resimg, (cx, cy), (0, 0, 255), markerType=cv2.MARKER_CROSS, markerSize=10,
-                                       thickness=1)
-                        cv2.putText(resimg, str(i + 1), (cx + 3, cy + 3), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 80, 255),
-                                    1,
-                                    cv2.LINE_AA)
+                    cx = int(ellipse[0][0])
+                    cy = int(ellipse[0][1])
+                    resimg = cv2.ellipse(resimg, ellipse, (255, 0, 0), 2)
+                    cv2.drawMarker(resimg, (cx, cy), (0, 0, 255), markerType=cv2.MARKER_CROSS, markerSize=10,
+                                   thickness=1)
+                    cv2.putText(resimg, str(i + 1), (cx + 3, cy + 3), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 80, 255),
+                                1,
+                                cv2.LINE_AA)
 
-                        # 楕円描画
-                        ellipses.append(
-                            {
-                                'points': {'x': ellipse[0][0], 'y': ellipse[0][1]},
-                                'axis': {'long': ellipse[1][0], 'short': ellipse[1][1]},
-                                'radian': ellipse[2]
-                            }
-                        )
-                        mask = cv2.ellipse(mask, ellipse, (255, 255, 255), -1)
-                        #writer.writerow([ellipse[0][0], ellipse[0][1], ellipse[1][0], ellipse[1][1], ellipse[2], 0.5])
-                    #else:
-                        #writer.writerow([ellipse[0][0], ellipse[0][1], ellipse[1][0], ellipse[1][1], ellipse[2], 0.0])
+                    # 楕円描画
+                    ellipses.append(
+                        {
+                            'points': {'x': ellipse[0][0], 'y': ellipse[0][1]},
+                            'axis': {'long': ellipse[1][0], 'short': ellipse[1][1]},
+                            'radian': ellipse[2]
+                        }
+                    )
+                    mask = cv2.ellipse(mask, ellipse, (255, 255, 255), -1)
 
     # maskの反転
     mask = 255 - mask
