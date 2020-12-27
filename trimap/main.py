@@ -122,7 +122,7 @@ def remove_bg(binary: str = None, img_url='') -> dict:
             if not is_nan_or_inf(ellipse):
                 print(i + 1, ellipse)
 
-                if 0.65 <= ellipse[1][0] / ellipse[1][1] <= 1.7 and 40 <= ellipse[1][1] <= 400:
+                if 0.9 <= ellipse[1][0] / ellipse[1][1] <= 1.2 and 40 <= ellipse[1][1] <= 400:
                     cx = int(ellipse[0][0])
                     cy = int(ellipse[0][1])
                     resimg = cv2.ellipse(resimg, ellipse, (255, 0, 0), 2)
