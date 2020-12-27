@@ -38,3 +38,9 @@ def request_img_from_local(binary='', img_url='') -> dict:
     return img_dic
 
 
+def request_img_from_local_machine(binary='', img_url='') -> dict:
+    img_dic = main.remove_bg_machine(binary, img_url)
+    print(img_dic['img'])
+    return img_dic
+
+

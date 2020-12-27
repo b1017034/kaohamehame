@@ -39,6 +39,16 @@ def rmbg_local():
     return controller.request_img_from_local(binary, img_url)
 
 
+@app.route('/v2/api/rmbg_m', methods=['POST'])
+def rmbg_local_mchine():
+    binary = request.json['buf']
+    img_url = ''
+
+    if binary == '' and img_url == '':
+        return {'status': 'needs binary or img_url request param '}
+    return controller.request_img_from_local(binary, img_url)
+
+
 @app.route('/v2/api/test', methods=['GET'])
 def test_local():
     img = cv2.imread('./images/test4.jpg')
@@ -49,7 +59,7 @@ def test_local():
 
     if binary == '' and img_url == '':
         return {'status': 'needs binary or img_url request param '}
-    return controller.request_img_from_local(binary, img_url)
+    return controller.request_img_from_local_machine(binary, img_url)
 
 @app.route('/')
 def hello():
